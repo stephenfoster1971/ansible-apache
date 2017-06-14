@@ -1,0 +1,37 @@
+---
+# tasks file for apache
+- name: install apache
+  yum: name=httpd state=present
+
+- name: install mod_ssl
+  yum: name=mod_ssl state=present
+
+- name: install openssh
+  yum: name=openssh state=present
+
+- name: create sites directories
+  file: path={{item}} state=directory
+  with_items: "{{apache_dirs}}"
+
+- name: create document root
+  file: path={{env_docroot}} state=directory owner=apache group=apache mode=0775
+
+- name: create logs directory
+  file: path={{env_logdir}} state=directory owner=apache group=apache mode=0775
+
+- name: copy index.html
+  template: src=index.html.j2 dest={{env_docroot}}/index.html owner=apache group=apache mode=0775
+
+- name: create new worker configuration
+  template: src=00-mpm.conf dest={{server_root}}/conf.modules.d
+  notify: restart apache
+  
+- name: copy httpd conf
+  template: src=httpd.conf-{{apache_env}}.j2 dest={{apache_config}}
+  notify: restart apache
+
+- name: create mime types file
+  file: path={{server_root}}/conf/mime.types state=file
+
+- name: start apache
+  service: name=httpd state=started enabled=yes

@@ -1,0 +1,30 @@
+---
+# Variabnles for the web server configuration
+
+#Ethernet interface on which the webserver should listen.
+# Defaults to the first interface. Change this to:
+#
+# iface: eth1
+#
+#...to override
+#
+iface: '{{ ansible_default_ipv4.interface }}'
+
+apache_dirs: ["/etc/httpd/conf/sites-available", "/etc/httpd/conf/sites-enabled"]
+apache_test_message: This is a test -
+apache_max_keep_alive_requests: 115
+apache_docroot: /export/home/www/static
+server_root: /etc/httpd
+apache_config: /etc/httpd/conf/httpd.conf
+sites_available: /etc/httpd/conf/sites-available
+sites_enabled: /etc/httpd/conf/sites-enabled
+
+apache_env: fst3
+env_fqdn: fst3.hmrc.gov.uk
+env_docroot: /export/home/fst3/static
+env_logdir: /opt/app/apache/logs
+apache_user: apache
+apache_group: apache
+apache_mpm: worker
+
+squid_listen: '{{ ansible_enp0s8.ipv4.address }}'

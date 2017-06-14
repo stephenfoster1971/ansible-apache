@@ -1,0 +1,10 @@
+{{ apache_test_message }} {{ ansible_distribution}} {{ ansible_distribution_version }} <br>
+<br>
+<br>
+This is for environment {{apache_env}} - FQDN = {{env_fqdn}}
+<br>
+Current Host: {{ ansible_hostname }} <br>
+Server list: <br>
+{% for host in groups.webservers_fst3 %}
+{{ host }} <br>
+{% endfor %}

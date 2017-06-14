@@ -1,0 +1,22 @@
+---
+# tasks file for squid
+- name: install squid
+  yum: name=squid state=present
+
+- name: copy whitelist.txt
+  template: src=whitelist.txt dest=/etc/squid owner=root group=root mode=0775
+
+- name: copy setproxy.sh
+  template: src=setproxy.sh dest=/etc/profile.d owner=root group=root mode=0775
+
+- name: copy setproxy.csh
+  template: src=setproxy.csh dest=/etc/profile.d owner=root group=root mode=0775
+
+- name: copy squid.conf
+  template: src=squid.conf dest=/etc/squid owner=root group=root mode=0775
+
+- name: create squid cache
+  command: /sbin/squid -z
+
+- name: start squid
+  service: name=squid state=started enabled=yes

@@ -1,0 +1,17 @@
+---
+- name: apply the common configuration to all hosts
+  hosts: all
+  remote_user: vagrant
+  become: yes
+
+  roles:
+  - common
+
+- name: apply the apache and squid roles
+  hosts: webservers_fst3
+  remote_user: vagrant
+  become: yes
+
+  roles:
+  - apache
+  - squid

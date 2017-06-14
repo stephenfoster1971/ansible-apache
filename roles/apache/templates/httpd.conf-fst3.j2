@@ -1,0 +1,162 @@
+#
+# This is a file created by Steve Foster to prove templating of a real apache config file
+#
+# =================================================
+# Basic settings
+# =================================================
+#Listen {{env_fqdn}}:80
+Listen 80
+Include conf.modules.d/*.conf
+User {{apache_user}}
+Group {{apache_group}}
+ServerAdmin someone@hmrcaspire.com
+ServerName {{env_fqdn}}:80
+UseCanonicalName Off
+ServerSignature Off
+HostnameLookups Off
+ServerTokens Prod
+ServerRoot "{{server_root}}"
+DocumentRoot "{{env_docroot}}"
+PidFile {{env_logdir}}/fst3_httpd.pid
+ScoreBoardFile {{env_logdir}}/fst3_httpd.scoreboard
+RewriteEngine ON
+TraceEnable Off
+<IfModule mod_dir.c>
+    DirectoryIndex index.html
+</IfModule>
+# =================================================
+# Loadable Modules
+# =================================================
+#LoadModule security_module    modules/mod_security.so
+#LoadModule mpm_worker_module modules/mod_mpm_worker.so
+# =================================================
+# HTTP and performance settings
+# =================================================
+Timeout 300
+KeepAlive On
+MaxKeepAliveRequests {{apache_max_keep_alive_requests}}
+KeepAliveTimeout 15
+<IfModule worker.c>
+ServerLimit 16
+StartServers 10
+MaxClients 150
+MinSpareThreads 25
+MaxSpareThreads 75
+ThreadsPerChild 25
+</IfModule>
+# =================================================
+# Access control
+# =================================================
+<Directory />
+Order Deny,Allow
+Allow from all
+</Directory>
+# =================================================
+# MIME encoding
+# =================================================
+<IfModule mod_mime.c>
+    TypesConfig {{server_root}}/conf/mime.types
+</IfModule>
+DefaultType text/plain
+<IfModule mod_mime.c>
+    AddEncoding x-compress .Z
+    AddEncoding x-gzip .gz .tgz
+    AddType application/x-compress .Z
+    AddType application/x-gzip .gz .tgz
+    AddType application/x-tar .tgz
+    AddType application/ms-download .cab
+    AddType application/x-msdownload .dll
+    AddType application/x-download .csv
+    AddType application/csv .csv
+    AddType text/csv .csv
+    AddType text .csv
+</IfModule>
+# =================================================
+# Logs
+# =================================================
+# need to fix the log format parsing of Y
+LogLevel warn
+Logformat {{'"%{%Y-%m-%d %H:%M:%S}t %h %{host}i %r %s %b %D"'}} ORU
+Logformat {{'"%{%Y-%m-%d %H:%M:%S}t %h %{host}i %r %s %b %D %q %{User-Agent}i %{IR_PORTAL_COOKIE}C %{Referer}i"'}} ORU_extended
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+#ErrorLog "{{env_logdir}}/fst3_error_log"
+#CustomLog "{{env_logdir}}/fst3_access_log" ORU_extended
+ErrorLog "|/sbin/rotatelogs -l {{env_logdir}}/fst3_error_log.%Y-%m-%d 86400"
+CustomLog "|/sbin/rotatelogs -l {{env_logdir}}/fst3_access_log.%Y-%m-%d 86400" ORU_extended
+# =================================================
+# SSL
+# =================================================
+#<IfModule mod_ssl.c>
+# Include "/opt/app/apache/conf/fst3_ssl.conf"
+#</IfModule>
+# =================================================
+# Weblogic Proxy Settings
+# =================================================
+#LoadModule weblogic_module /opt/app/apache/modules/weblogic91_solaris10_mod_wl_20.so
+#<IfModule mod_weblogic.c>
+#Debug OFF
+#WLLogFile /opt/app/apache/logs/fst3_proxy.log
+#ConnectTimeOutSecs   4
+#ConnectRetrySecs 2
+#WLIOTimeoutSecs 120
+#ErrorPage http://www.hmrc.gov.uk/efiling/temp_down.htm
+#MaxPostSize 20480
+#DebugConfigInfo       OFF
+#KeepAliveEnabled ON
+#DynamicServerList OFF
+#KeepAliveSecs  15
+#</IfModule>
+# =================================================
+# Cache-Control and Headers Settings
+# =================================================
+ExpiresActive On
+ExpiresByType image/gif A3600
+ExpiresByType image/jpeg A3600
+ExpiresByType image/png A3600
+ExpiresByType text/css A3600
+ExpiresByType application/x-javascript A3600
+
+<FilesMatch "\.(gif|jpe?g|png|js|css)$">
+Header append Cache-Control "post-check=3600, pre-check=43200"
+</FilesMatch>
+# =================================================
+# GetAccess Settings
+# =================================================
+#Include "/opt/app/apache/conf/fst3_ga.conf"
+# =================================================
+# HoldingPage Settings
+# =================================================
+<IfDefine Holding>
+RewriteRule   ^/paye/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/portalservice/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/login/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/logout/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/home/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/paye/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/ssoout/(.*) /holding/holding.htm  [R,L]
+RewriteRule   ^/ssoin/(.*) /holding/holding.htm  [R,L]
+</IfDefine>
+# =================================================
+# Rewrite to HTTPS Settings
+# =================================================
+#RewriteCond %{REQUEST_URI}  !=/heartbeat/heartbeat.htm
+#RewriteCond %{REQUEST_URI}  !=/server-status
+#RewriteCond %{SERVER_PORT}  !=443
+#RewriteRule ^/$ https://{{env_fqdn}}/home [R=301,L]
+#RewriteCond %{HTTP_HOST}   !^fst3\.hmrc\.gov\.uk [NC]
+#RewriteCond %{HTTP_HOST}   !=""
+#RewriteCond %{REQUEST_URI}  !=/heartbeat/heartbeat.htm
+#RewriteRule ^/(.*)  http://{{env_fqdn}}:%{SERVER_PORT}/$1 [R=301,L]
+# =================================================
+# Status Settings
+# =================================================
+LoadModule status_module modules/mod_status.so
+ExtendedStatus On
+<Location /server-status>
+SetHandler server-status
+Order Deny,Allow
+Allow from all
+</Location>
