@@ -5,7 +5,8 @@
 
 - name: copy whitelist.txt
   template: src=whitelist.txt dest=/etc/squid owner=root group=root mode=0775
-
+  notify: reload squid
+  
 #- name: create whitelist from variable
 #  blockinfile:
 #    dest: /etc/squid/whitelist.txt
