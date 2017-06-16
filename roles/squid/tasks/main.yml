@@ -6,6 +6,24 @@
 - name: copy whitelist.txt
   template: src=whitelist.txt dest=/etc/squid owner=root group=root mode=0775
 
+#- name: create whitelist from variable
+#  blockinfile:
+#    dest: /etc/squid/whitelist.txt
+#    create: yes
+#    block: |
+#      {{ item }}
+#    marker: "# {mark} ansible managed block {{ item }}"
+#  with_items: "{{whitelist_urls}}"
+
+#- name: create whitelist.txt
+#  copy:
+#    dest: /etc/squid/whitelist.txt
+#    owner: root
+#    group: root
+#    mode: 0644
+#    backup: yes
+#    content: "{{whitelist_urls}}"
+
 - name: copy setproxy.sh
   template: src=setproxy.sh dest=/etc/profile.d owner=root group=root mode=0775
 

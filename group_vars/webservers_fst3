@@ -28,3 +28,4 @@ apache_group: apache
 apache_mpm: worker
 
 squid_listen: '{{ ansible_enp0s8.ipv4.address }}'
+whitelist_urls: [".bbc.co.uk", ".armoloy.co.uk", ".terraform.io", ".newsite.me"]

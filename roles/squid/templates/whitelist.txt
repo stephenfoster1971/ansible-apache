@@ -1,4 +1,3 @@
-.armoloy.co.uk
-.google.co.uk
-.bbc.co.uk
-.isolitude.co.uk
+{% for text in whitelist_urls %}
+{{ text }}
+{% endfor %} 
