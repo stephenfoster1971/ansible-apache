@@ -7,12 +7,16 @@ sudo sed -i s/#host_key_checking/host_key_checking/g /etc/ansible/ansible.cfg
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/centos-7.1"
+  config.vm.box = "bento/centos-7.3"
 
   config.vm.define "ansible" do |ansible|
     ansible.vm.hostname = "ansible"
     ansible.vm.network "private_network", ip: "192.0.3.4"
     ansible.vm.provision "shell", inline: $ansible_bootstrap
+    ansible.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+    end
   end
 
     (1..3).each do |i|
